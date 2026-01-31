@@ -1,17 +1,9 @@
 # Discord Archiver Docker Image
 FROM python:3.9-slim-bullseye
 
-# Install system dependencies for .NET and Playwright
+# Install system dependencies for Playwright
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget curl gnupg \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install .NET 8.0 (Required for DiscordChatExporter)
-RUN wget -q https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
-    && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends dotnet-sdk-8.0 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -24,11 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN playwright install --with-deps chromium
 
 # Copy application code
-COPY config.py app.py ./
-COPY DiscordChatExporterCli ./DiscordChatExporterCli/
-
-# Make exporter executable
-RUN chmod +x ./DiscordChatExporterCli/DiscordChatExporter.Cli
+COPY config.py app.py discord_client.py html_builder.py ./
 
 EXPOSE 8501
 

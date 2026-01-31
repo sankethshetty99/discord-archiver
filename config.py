@@ -12,10 +12,6 @@ class Config:
     """Application configuration with environment variable support."""
     
     # Paths
-    EXPORTER_PATH: str = os.getenv(
-        "EXPORTER_PATH", 
-        "./DiscordChatExporterCli/DiscordChatExporter.Cli"
-    )
     TEMP_DIR: str = os.getenv("TEMP_DIR", "Temp_Export_UI")
     TEMP_DIR_LOCAL: str = os.getenv("TEMP_DIR_LOCAL", "Temp_Export_Local")
     LOCAL_BACKUP_DIR: str = os.getenv("LOCAL_BACKUP_DIR", "Local_Backup_PDFs")

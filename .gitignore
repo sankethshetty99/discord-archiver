@@ -46,3 +46,6 @@ logs/
 # Build artifacts
 dist/
 build/
+
+# Platform-specific CLI (keep Linux for cloud, ignore macOS backup)
+DiscordChatExporterCli-osx/
