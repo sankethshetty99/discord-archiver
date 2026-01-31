@@ -306,9 +306,9 @@ def archive_channel_task(channel, guild_name, token, drive_creds, temp_base_dir)
                 # Fetch messages
                 client = DiscordClient(token)
                 all_messages = []
-                # Fetch only 1 batch (100 messages) for simplicity as requested "same functionality"
-                # But to fully replicate, we iterate. Let's limit to 500 for performance unless requested.
-                for batch in client.get_messages(cid, limit=2000):
+                
+                # Fetch all messages (no limit)
+                for batch in client.get_messages(cid, limit=None):
                      all_messages.extend(batch)
                 
                 if not all_messages:
