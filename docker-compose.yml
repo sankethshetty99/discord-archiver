@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  discord-archiver:
+    build: .
+    container_name: discord-archiver
+    env_file:
+      - .env
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./token.pickle:/app/token.pickle:ro
+      - ./credentials.json:/app/credentials.json:ro
+    restart: unless-stopped
