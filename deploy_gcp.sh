@@ -38,16 +38,11 @@ if [ -z "$DISCORD_TOKEN" ]; then
     exit 1
 fi
 
-# Generate or Read Password
-if [ -z "$WEB_PASSWORD" ]; then
-    echo "🔒 Generating secure web access password..."
-    WEB_PASSWORD=$(openssl rand -base64 12)
-    echo "=========================================="
-    echo "⚠️  WEB ACCESS PASSWORD: $WEB_PASSWORD"
-    echo "   (Save this! You will need it to login)"
-    echo "=========================================="
-else
-    echo "🔒 Using provided WEB_PASSWORD"
+# OAuth Check
+if [ -z "$GOOGLE_CLIENT_ID" ] || [ -z "$GOOGLE_CLIENT_SECRET" ]; then
+    echo "❌ Error: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set."
+    echo "Provide them as environment variables."
+    exit 1
 fi
 
 echo "🚀 Deploying to Cloud Run..."
@@ -57,7 +52,7 @@ gcloud run deploy $APP_NAME \
     --platform managed \
     --region $REGION \
     --allow-unauthenticated \
-    --set-env-vars "IS_CLOUD=true,DISCORD_BOT_TOKEN=$DISCORD_TOKEN,GOOGLE_DRIVE_TOKEN_BASE64=$TOKEN_B64,WEB_ACCESS_PASSWORD=$WEB_PASSWORD" \
+    --set-env-vars "IS_CLOUD=true,DISCORD_BOT_TOKEN=$DISCORD_TOKEN,GOOGLE_DRIVE_TOKEN_BASE64=$TOKEN_B64,GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET,REDIRECT_URI=https://discord-archiver-999941660092.us-central1.run.app" \
     --memory 2Gi \
     --cpu 2 \
     --port 8501

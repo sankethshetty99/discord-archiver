@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional, Set
 import streamlit as st
 from dotenv import load_dotenv
 from google.auth.transport.requests import Request
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google_auth_oauthlib.flow import InstalledAppFlow, Flow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from playwright.sync_api import sync_playwright
@@ -628,22 +628,68 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- PASSWORD AUTH ---
-if Config.WEB_ACCESS_PASSWORD:
-    if 'is_logged_in' not in st.session_state:
-        st.session_state.is_logged_in = False
-    
-    if not st.session_state.is_logged_in:
-        st.title("🔒 Login Required")
-        with st.form("login_form"):
-            pwd = st.text_input("Enter Password", type="password")
-            if st.form_submit_button("Login"):
-                if pwd == Config.WEB_ACCESS_PASSWORD:
-                    st.session_state.is_logged_in = True
+# --- OAUTH AUTH ---
+if Config.GOOGLE_CLIENT_ID and Config.GOOGLE_CLIENT_SECRET:
+    if 'user_info' not in st.session_state:
+        
+        # Check for Code
+        if 'code' in st.query_params:
+            try:
+                code = st.query_params['code']
+                
+                # Create Flow
+                flow = Flow.from_client_config(
+                    {
+                        "web": {
+                            "client_id": Config.GOOGLE_CLIENT_ID,
+                            "client_secret": Config.GOOGLE_CLIENT_SECRET,
+                            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                            "token_uri": "https://oauth2.googleapis.com/token",
+                        }
+                    },
+                    scopes=['openid', 'https://www.googleapis.com/auth/userinfo.email'],
+                    redirect_uri=Config.REDIRECT_URI
+                )
+                
+                flow.fetch_token(code=code)
+                credentials = flow.credentials
+                
+                # Fetch User Info
+                user_info_service = build('oauth2', 'v2', credentials=credentials)
+                user_info = user_info_service.userinfo().get().execute()
+                
+                st.session_state.user_info = user_info
+                st.query_params.clear() # Clear code from URL
+                st.rerun()
+                
+            except Exception as e:
+                st.error(f"Login Failed: {str(e)}")
+                if st.button("Try Again"):
+                    st.query_params.clear()
                     st.rerun()
-                else:
-                    st.error("Incorrect password")
-        st.stop()
+                st.stop()
+        
+        else:
+            # Show Login Button
+            st.title("🔒 Login Required")
+            
+            flow = Flow.from_client_config(
+                {
+                    "web": {
+                        "client_id": Config.GOOGLE_CLIENT_ID,
+                        "client_secret": Config.GOOGLE_CLIENT_SECRET,
+                        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                        "token_uri": "https://oauth2.googleapis.com/token",
+                    }
+                },
+                scopes=['openid', 'https://www.googleapis.com/auth/userinfo.email'],
+                redirect_uri=Config.REDIRECT_URI
+            )
+            
+            auth_url, _ = flow.authorization_url(prompt='consent')
+            
+            st.markdown(f'<a href="{auth_url}" target="_self"><button style="background-color:#4285F4; color:white; padding:10px 20px; border:none; border-radius:4px; font-size:16px;">Sign in with Google</button></a>', unsafe_allow_html=True)
+            st.stop()
 
 # --- AUTH GATE ---
 creds = get_stored_creds()
@@ -679,7 +725,7 @@ with col_logout:
         if os.path.exists("token.pickle"):
             os.remove("token.pickle")
         st.session_state.pop('drive_creds', None)
-        st.session_state.is_logged_in = False
+        st.session_state.pop('user_info', None)
         st.rerun()
 
 # Get Discord token from environment (secure)

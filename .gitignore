@@ -49,3 +49,4 @@ build/
 
 # Platform-specific CLI (keep Linux for cloud, ignore macOS backup)
 DiscordChatExporterCli-osx/
+client_secret_*.json
