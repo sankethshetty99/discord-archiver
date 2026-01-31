@@ -25,6 +25,7 @@ class Config:
     # Cloud Configuration
     IS_CLOUD: bool = os.getenv("IS_CLOUD", "false").lower() == "true"
     GOOGLE_DRIVE_TOKEN_BASE64: Optional[str] = os.getenv("GOOGLE_DRIVE_TOKEN_BASE64")
+    WEB_ACCESS_PASSWORD: Optional[str] = os.getenv("WEB_ACCESS_PASSWORD")
     
     # Worker Configuration
     MAX_WORKERS: int = int(os.getenv("MAX_WORKERS", "4"))

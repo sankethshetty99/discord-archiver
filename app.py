@@ -628,6 +628,23 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# --- PASSWORD AUTH ---
+if Config.WEB_ACCESS_PASSWORD:
+    if 'is_logged_in' not in st.session_state:
+        st.session_state.is_logged_in = False
+    
+    if not st.session_state.is_logged_in:
+        st.title("🔒 Login Required")
+        with st.form("login_form"):
+            pwd = st.text_input("Enter Password", type="password")
+            if st.form_submit_button("Login"):
+                if pwd == Config.WEB_ACCESS_PASSWORD:
+                    st.session_state.is_logged_in = True
+                    st.rerun()
+                else:
+                    st.error("Incorrect password")
+        st.stop()
+
 # --- AUTH GATE ---
 creds = get_stored_creds()
 if not creds:
@@ -662,6 +679,7 @@ with col_logout:
         if os.path.exists("token.pickle"):
             os.remove("token.pickle")
         st.session_state.pop('drive_creds', None)
+        st.session_state.is_logged_in = False
         st.rerun()
 
 # Get Discord token from environment (secure)
