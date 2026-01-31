@@ -3,6 +3,7 @@
 *.pickle
 token.pickle
 credentials.json
+client_secret_999941660092-3cbjee7gb5lrsm5m7vkqhkm6eb0gcmpa.apps.googleusercontent.com.json
 
 # Python
 __pycache__/

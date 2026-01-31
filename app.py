@@ -658,6 +658,15 @@ if Config.GOOGLE_CLIENT_ID and Config.GOOGLE_CLIENT_SECRET:
                 user_info_service = build('oauth2', 'v2', credentials=credentials)
                 user_info = user_info_service.userinfo().get().execute()
                 
+                # Check Allowlist
+                user_email = user_info.get('email')
+                if Config.ALLOWED_EMAIL and user_email != Config.ALLOWED_EMAIL:
+                    st.error(f"Access Denied: Email {user_email} is not authorized.")
+                    if st.button("Try Different Account"):
+                         st.query_params.clear()
+                         st.rerun()
+                    st.stop()
+                
                 st.session_state.user_info = user_info
                 st.query_params.clear() # Clear code from URL
                 st.rerun()

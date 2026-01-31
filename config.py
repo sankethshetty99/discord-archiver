@@ -28,6 +28,7 @@ class Config:
     WEB_ACCESS_PASSWORD: Optional[str] = os.getenv("WEB_ACCESS_PASSWORD") # Keep for local/fallback? No, request was to replace.
     
     # OAuth Configuration
+    ALLOWED_EMAIL: Optional[str] = os.getenv("ALLOWED_EMAIL")
     GOOGLE_CLIENT_ID: Optional[str] = os.getenv("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET: Optional[str] = os.getenv("GOOGLE_CLIENT_SECRET")
     REDIRECT_URI: str = os.getenv("REDIRECT_URI", "https://discord-archiver-999941660092.us-central1.run.app")
